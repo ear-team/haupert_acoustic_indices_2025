@@ -12,7 +12,7 @@ If the code, even partially, is used for other purpose please cite the article
 
 ## Setup and usage
 
-All code was developed using an conda environment based on Python v3.10, but other versions may also work.
+All Python code was developed using a conda environment based on Python v3.10, but other versions may also work.
 
 Download the `.zip` from Github (click on `code` then `Download Zip`) and extract all folders without changing the name of the folders neither rearrange the folder and sub-folders.
 
@@ -23,4 +23,8 @@ Additional libraries required:
 * scikit-maad
 * scikit-learn
 * seaborn
+
+The correlation between acoustic indices was done with a specific notebook based on R v4.3.2 and the library :
+* data.table
+* corrplot
 
