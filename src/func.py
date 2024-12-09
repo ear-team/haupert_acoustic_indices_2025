@@ -1,20 +1,7 @@
 from skimage.morphology import closing
 import numpy as np
+import matplotlib.pyplot as plt
 from maad import sound, util, rois
-
-## 
-
-MIN_V = 1 # min week number possible
-MIN_m = 1 # min month number possible
-MIN_d = 1 # min day number possible
-MIN_H = 0 # min hour number possible
-MIN_M = 0 # min minute number possible
-
-MAX_V = 53 # max week number possible
-MAX_m = 12 # max month number possible
-MAX_d = 31 # max day number possible
-MAX_H = 23 # max hour number possible
-MAX_M = 59 # max minute number possible
 
 #=============================================================================
 
@@ -130,11 +117,7 @@ def region_of_interest_index2(Sxx_power, tn, fn,
         Sxx_dB_noNoise,  
         mode_bin = 'absolute', 
         bin_h=BIN_H, 
-        bin_l=BIN_L,
-        # bin_h=snr+BIN_H,
-        # bin_l=snr+BIN_L,
-        # bin_h=util.add_dB(BIN_H,snr),
-        # bin_l=util.add_dB(BIN_L,snr),
+        bin_l=BIN_L
         )    
     
     if verbose :
@@ -228,11 +211,27 @@ def region_of_interest_index2(Sxx_power, tn, fn,
     # Convert boolean (True or False) into integer (0 or 1)
     im_mask_filtered = im_rois>0 * 1
     # number of ROIs / min
-    ROI_number = len(df_rois) / (tn[-1] / 60) 
+    nROI = len(df_rois) / (tn[-1] / 60) 
     # ROIs coverage in %
-    ROI_cover = im_mask_filtered.sum() / (im_mask_filtered.shape[0]*im_mask_filtered.shape[1]) *100 
+    aROI = im_mask_filtered.sum() / (im_mask_filtered.shape[0]*im_mask_filtered.shape[1]) *100 
 
     if verbose :
-        print('===> ROI_number : {:.0f}#/min | ROI_cover : {:.2f}%'.format(round(ROI_number), ROI_cover))
+        print('===> nROI : {:.0f}#/min | aROI : {:.2f}%'.format(round(nROI), aROI))
+
+        """**************************** Display process ******************************"""
+
+    if DISPLAY : 
+        fig, ax = plt.subplots(4,1,figsize=(6/10*tn[-1],8), sharex=True)
+        util.plot_spectrogram(Sxx_power, extent=EXT, ax=ax[0], ylabel ='', xlabel='', colorbar=False)
+        util.plot_spectrogram(Sxx_dB_noNoise, log_scale=False, vmax = np.percentile(Sxx_dB_noNoise,99.9), vmin = np.percentile(Sxx_dB_noNoise,0.1), ylabel ='', xlabel='', extent=EXT, ax=ax[1], colorbar=False)
+        util.plot2d(im_mask, ylabel ='', xlabel='', extent=EXT, ax=ax[2], colorbar=False)
+        util.plot_spectrogram(Sxx_power, ylabel ='', extent=EXT, ax=ax[3], colorbar=False)
+        if len(df_rois) > 0 :
+            util.overlay_rois(im_ref=Sxx_power, 
+                        rois = df_rois,
+                        ylabel ='', 
+                        extent=EXT, 
+                        ax=ax[3], 
+                        colorbar=False,)
             
-    return ROI_number, ROI_cover
+    return nROI, aROI
