@@ -1,7 +1,7 @@
 datasets:
   - name: 'sapsucker_woods'
     sites: ['SSW']
-    path: '../data/USA_Sapsucker/audio'
+    path: '/media/haupert/LaCie/mes_projets_data/nROI/dataset/_02_dataset_for_publication/USA_Sapsucker/audio'
     datetime_format: '%Y%m%d_%H%M%S'
     flim_max: null
     flim_min: null
@@ -11,7 +11,7 @@ datasets:
     sites: ['site_223', 'site_205', 'site_187', 'site_245', 'site_181',
             'site_162', 'site_183', 'site_242', 'site_193', 'site_208',
             'site_188', 'site_185', 'site_195', 'site_194', 'site_236']
-    path: '../data/Bialowieza/audio'
+    path: '/media/haupert/LaCie/mes_projets_data/nROI/dataset/_02_dataset_for_publication/Bialowieza/audio'
     datetime_format: '%Y%m%d_%H%M%S'
     flim_max: null
     flim_min: null
@@ -19,7 +19,7 @@ datasets:
     tlim_max: null
   - name: 'hawai'
     sites: ['UHH_S01', 'UHH_S02']
-    path: '../data/Hawai/audio'
+    path: '/media/haupert/LaCie/mes_projets_data/nROI/dataset/_02_dataset_for_publication/Hawai/audio'
     datetime_format: '%Y%m%d_%H%M%S'
     flim_max: null
     flim_min: null
@@ -27,7 +27,7 @@ datasets:
     tlim_max: null
   - name: 'coffee_farms'
     sites: ['NES_S01', 'NES_S02']
-    path: '../data/Coffee_farms/audio'
+    path: '/media/haupert/LaCie/mes_projets_data/nROI/dataset/_02_dataset_for_publication/Coffee_farms/audio'
     datetime_format: '%Y%m%d_%H%M%S'
     flim_max: null
     flim_min: null
@@ -38,7 +38,7 @@ datasets:
             'SNE_010','SNE_011', 'SNE_012','SNE_013','SNE_014','SNE_015','SNE_016','SNE_017','SNE_018', 'SNE_019',
             'SNE_020','SNE_021','SNE_022','SNE_023','SNE_024','SNE_025','SNE_026','SNE_027','SNE_028','SNE_029',
             'SNE_030','SNE_031','SNE_032','SNE_033'] 
-    path: '../data/USA_sierra_nevada_forest/audio'
+    path: '/media/haupert/LaCie/mes_projets_data/nROI/dataset/_02_dataset_for_publication/USA_sierra_nevada_forest/audio'
     datetime_format: '%Y%m%d_%H%M%S'
     flim_max: null
     flim_min: null
@@ -52,7 +52,7 @@ datasets:
             'KN-15', 'KN-16', 'PL-01', 'PL-02', 'PL-03', 'PL-04', 'PL-05',
             'PL-06', 'PL-07', 'PL-09', 'PL-10', 'PL-11', 'PL-12', 'PL-13',
             'PL-14', 'PL-15', 'PL-16']
-    path: '../data/UK_Sussex_countryside/audio'
+    path: '/media/haupert/LaCie/mes_projets_data/nROI/dataset/_02_dataset_for_publication/UK_Sussex_countryside/audio'
     datetime_format: '%Y%m%d_%H%M'
     flim_max: null
     flim_min: null
@@ -66,7 +66,7 @@ datasets:
               'TE-15', 'PO-02', 'PO-15', 'FS-06', 'TE-06', 'TE-11', 'TE-04',
               'PO-12', 'TE-07', 'FS-01', 'PO-05', 'PO-04', 'TE-03', 'PO-14',
               'FS-05', 'TE-14', 'TE-12']
-    path: '../data/Ecuador/audio'
+    path: '/media/haupert/LaCie/mes_projets_data/nROI/dataset/_02_dataset_for_publication/Ecuador/audio'
     datetime_format: '%Y%m%d_%H%M'
     flim_max: null
     flim_min: null
@@ -74,7 +74,7 @@ datasets:
     tlim_max: null
   - name: 'risoux'
     sites: ['risoux3']
-    path: '../data/dB@risoux/audio'
+    path: '/media/haupert/LaCie/mes_projets_data/nROI/dataset/_02_dataset_for_publication/dB@risoux/audio'
     datetime_format: '%Y%m%d_%H%M%S'
     flim_max: null
     flim_min: null
@@ -82,7 +82,7 @@ datasets:
     tlim_max: null
   - name: 'peru'
     sites: ['PER_S01', 'PER_S02', 'PER_S04', 'PER_S05', 'PER_S06', 'PER_S08', 'PER_S10']
-    path: '../data/Peru/audio'
+    path: '/media/haupert/LaCie/mes_projets_data/nROI/dataset/_02_dataset_for_publication/Peru/audio'
     datetime_format: '%Y%m%d_%H%M%S'
     flim_max: null
     flim_min: null
@@ -93,7 +93,7 @@ datasets:
 seed: 1979
 
 # Save directory
-save_dir: '../results'
+save_dir: '../results/pearson'
 
 # audio files extension by default
 audio_extension: '.wav'
@@ -141,7 +141,7 @@ low_level: 6
 # correlation
 optimized: false
 remove_clipping_audio: false
-correlation_method: 'spearman' # spearman pearson
+correlation_method: 'pearson' # spearman pearson
 n_bootstrap: 1000
 
 list_indices: ['ZCR', 'MEANt', 'VARt', 'SKEWt', 'KURTt', 'LEQt', 
