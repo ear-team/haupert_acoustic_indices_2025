@@ -16,16 +16,23 @@ library(corrplot)
 CORRELATION_TYPE = 'spearman'
 
 # IMPORT CSV (you may need to adapt the path depending on your working directory)
-data = fread("../results/data_species.csv")
+data = fread("./results/data_species.csv")
 
 # Extract the acoustic index only
 data_index = data[,c(2:61)]
 
 # select the columns by their name
-data_index_selection = data_index [,c('ZCR', 'EVNtMean', 'MEANf', 'SKEWf', 'KURTf', 'NP', 'SNRf', 'Hf', 'H', 'EAS', 'ECU', 
-                                'ECV', 'EPS', 'ACI', 'NDSI', 'rBA', 'BioEnergy', 'BIO', 'LFC', 'MFC', 'ACTspFract', 
-                                'ACTspCount', 'ACTspMean', 'EVNspFract', 'EVNspMean', 'EVNspCount', 'TFSD', 
-                                'H_Havrda', 'H_Renyi', 'H_pairedShannon', 'H_GiniSimpson', 'AGI', 'nROI', 'aROI')]
+# data_index_selection = data_index [,c('ZCR', 'EVNtMean', 'MEANf', 'SKEWf', 'KURTf', 'NP', 'SNRf', 'Hf', 'H', 'EAS', 'ECU', 
+#                                 'ECV', 'EPS', 'ACI', 'NDSI', 'rBA', 'BioEnergy', 'BIO', 'LFC', 'MFC', 'ACTspFract', 
+#                                 'ACTspCount', 'ACTspMean', 'EVNspFract', 'EVNspMean', 'EVNspCount', 'TFSD', 
+#                                 'H_Havrda', 'H_Renyi', 'H_pairedShannon', 'H_GiniSimpson', 'AGI', 'nROI', 'aROI')]
+
+data_index_selection = data_index [,c('ACTtFraction', 'ACTtCount', 'EVNtFraction', 'EVNtMean', 'EVNtCount', 
+                                'MEANf', 'SKEWf', 'KURTf', 'NP', 'SNRf', 'Hf', 'H', 'EAS', 'ECU', 'ECV', 
+                                'EPS', 'EPS_KURT', 'EPS_SKEW', 'ACI', 'NDSI', 'rBA', 'BioEnergy', 'BIO', 
+                                'ADI', 'AEI', 'LFC', 'MFC', 'ACTspFract', 'ACTspCount', 'ACTspMean', 'EVNspFract', 
+                                'EVNspMean', 'EVNspCount', 'TFSD', 'H_Havrda', 'H_Renyi', 'H_pairedShannon', 
+                                'H_GiniSimpson', 'AGI', 'nROI', 'aROI')]
 
 # Resize the figure 
 options(repr.plot.width = 20, repr.plot.height = 15, repr.plot.res = 300)
@@ -53,9 +60,12 @@ corrplot_obj = corrplot(
         pch.cex = 0.7,
         pch.col = '#1a1a1a8c',
         tl.col = '#000000',
-        tl.srt = 50,
-        tl.cex = 1,
+        tl.srt = 45,
+        tl.cex = 0.66,
         cl.ratio =0.1,
-        cl.cex = 1
+        cl.cex = 0.66
         )
 
+# Save the figure in png format
+png(filename = "./results/figure_6_onlybirds.png", width = 20, height = 15, units = "cm", res = 300)
+dev.off()
