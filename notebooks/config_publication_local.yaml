@@ -156,11 +156,8 @@ list_indices: ['ZCR', 'MEANt', 'VARt', 'SKEWt', 'KURTt', 'LEQt',
 # regression
 percent_train: 0.75
 
-# list_indices_multiple_regression: ['ADI', 'Hf', 'EPS_KURT', 'ECU', 'MEANf', 'BIO', 
-#                                   'AGI', 'NP', 'nROI', 'ACI', 'TFSD', 'SNRf','LFC']
+list_indices_multiple_regression: ['BioEnergy', 'NDSI', 'nROI', 'MFC', 'NP', 
+                                    'EAS', 'LFC', 'ACI', 'TFSD']
 
-# list_indices_multiple_regression: ['ADI', 'KURTf', 'EPS_KURT', 'ECU', 'BioEnergy', 'BIO', 
-#                                   'ACTspMean', 'NP', 'nROI', 'ACI', 'TFSD', 'SNRf','LFC']
-
-list_indices_multiple_regression: ['nROI', 'ACTspMean', 'NP', 'TFSD', 'BIO', 'ACI', 'LFC', 'NDSI', 
-                                    'ECU', 'SNRf', 'EPS_KURT', 'EVNtCount', 'ADI', 'H', 'MEANf'  ]
+# list_indices_multiple_regression: ['NP', 'EAS', 'EPS', 'ACI', 'NDSI', 'rBA', 'BioEnergy', 
+#                                     'BIO', 'LFC', 'EVNspMean', 'TFSD', 'AGI', 'nROI']    
