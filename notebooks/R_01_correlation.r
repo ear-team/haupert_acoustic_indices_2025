@@ -75,14 +75,17 @@ corrplot_obj <- corrplot(
 
 dev.off()
 
-
 # VIF (Variation Inflation Factor) calculation to check for multicollinearity
+# ===============================================================================
 library(car)
 
 # Create a dataset that includes species_richness for VIF analysis
-data_for_vif <- data[, c("species_richness", c("BioEnergy", "NDSI", "nROI", "MFC", 
-                                "NP","EAS", "LFC", "ACI", "TFSD")), with = FALSE]
-
+data_for_vif <- data[, c("species_richness", c(
+        "BioEnergy", "NDSI", "nROI", "MFC",
+        "NP", "EAS", "LFC", "ACI", "TFSD"
+)), with = FALSE]
+# compute a simple linear model
 vif_model <- lm(species_richness ~ ., data = data_for_vif)
+# calculate VIF values
 vif_values <- vif(vif_model)
 print(vif_values)
