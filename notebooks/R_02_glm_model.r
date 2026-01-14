@@ -35,7 +35,8 @@ options(width = 120)
 cat("Loading and preparing data...\n")
 
 # Load the data
-data_path <- "./results/train_dataset_for_statistical_modeling_in_R.csv"
+# data_path <- "./results/train_dataset_for_statistical_modeling_in_R.csv"
+data_path <- "./results/data_species_onlybirds.csv"
 if (!file.exists(data_path)) {
     stop("Data file not found. Please check the path: ", data_path)
 }
@@ -61,6 +62,10 @@ data$dataset <- as.factor(data$dataset)
 # Check for missing values
 cat("Missing values per column:\n")
 print(colSums(is.na(data)))
+
+# show the list of columns 
+cat("Column names in the dataset:\n")
+print(colnames(data))
 
 # Remove rows with missing values in key variables
 data_clean <- data[complete.cases(data[c("species_richness", "nROI", "device_id", "habitat", "dataset")]), ]
