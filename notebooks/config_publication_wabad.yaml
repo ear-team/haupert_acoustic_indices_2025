@@ -83,5 +83,4 @@ list_indices: ['ZCR', 'MEANt', 'VARt', 'SKEWt', 'KURTt', 'LEQt',
 # regression
 percent_train: 0.75
 
-list_indices_multiple_regression: ['NDSI', 'H', 'ECU', 'SNRf', 'ACI', 'LFC', 
-                                  'TFSD', 'nROI', 'NP', 'BIO', 'ACTspMean', 'MEANf']
+list_indices_multiple_regression: ['BioEnergy', 'NDSI', 'nROI', 'NP', 'ACI', 'TFSD', 'LFC', 'AGI']

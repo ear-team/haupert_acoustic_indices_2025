@@ -66,12 +66,12 @@ datasets:
               'TE-15', 'PO-02', 'PO-15', 'FS-06', 'TE-06', 'TE-11', 'TE-04',
               'PO-12', 'TE-07', 'FS-01', 'PO-05', 'PO-04', 'TE-03', 'PO-14',
               'FS-05', 'TE-14', 'TE-12']
-    # path: '../data/Ecuador/audio'
-    # datetime_format: '%Y%m%d_%H%M'
-    # flim_max: null
-    # flim_min: null
-    # tlim_min: null
-    # tlim_max: null
+    path: '../data/Ecuador/audio'
+    datetime_format: '%Y%m%d_%H%M'
+    flim_max: null
+    flim_min: null
+    tlim_min: null
+    tlim_max: null
   - name: 'risoux'
     sites: ['risoux3']
     path: '../data/dB@risoux/audio'
@@ -156,5 +156,4 @@ list_indices: ['ZCR', 'MEANt', 'VARt', 'SKEWt', 'KURTt', 'LEQt',
 # regression
 percent_train: 0.75
 
-list_indices_multiple_regression: ['NDSI', 'H', 'ECU', 'SNRf', 'ACI', 'LFC', 
-                                  'TFSD', 'nROI', 'NP', 'BIO', 'ACTspMean', 'MEANf']
+list_indices_multiple_regression: ['BioEnergy', 'NDSI', 'nROI', 'NP', 'ACI', 'TFSD', 'LFC', 'AGI']

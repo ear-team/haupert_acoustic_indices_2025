@@ -9,6 +9,10 @@ rm(list = ls())
 # set wd to the script location
 setwd("./")
 
+# options
+# =============================================================================
+SAVE_FIGURES <- FALSE # Set to TRUE to save figures, FALSE to only display them
+
 # Load required libraries
 # =============================================================================
 if (!require("glmmTMB")) install.packages("glmmTMB")
@@ -17,6 +21,7 @@ if (!require("ggplot2")) install.packages("ggplot2")
 if (!require("dplyr")) install.packages("dplyr")
 if (!require("performance")) install.packages("performance")
 if (!require("DescTools")) install.packages("DescTools")
+if (!require("gridExtra")) install.packages("gridExtra")
 
 library(glmmTMB) # Generalized linear mixed models with various distributions
 library(DHARMa) # Residual diagnostics for GLMMs
@@ -24,6 +29,7 @@ library(ggplot2) # Plotting
 library(dplyr) # Data manipulation
 library(performance) # Model performance metrics
 library(DescTools) # For CCC calculation
+library(gridExtra) # For arranging multiple ggplots
 
 # Set options
 # =============================================================================
@@ -32,40 +38,26 @@ options(width = 120)
 
 # Data loading and preparation
 # =============================================================================
-cat("Loading and preparing data...\n")
 
 # Load the data
-# data_path <- "./results/train_dataset_for_statistical_modeling_in_R.csv"
-data_path <- "./results/data_species_onlybirds.csv"
+data_path <- "./results/train_dataset_for_statistical_modeling_in_R.csv"
 if (!file.exists(data_path)) {
     stop("Data file not found. Please check the path: ", data_path)
 }
-
 data <- read.csv(data_path, stringsAsFactors = FALSE)
 
 # Display data structure
-cat("Data structure:\n")
 str(data)
-cat("\nFirst few rows:\n")
 head(data)
 
 # Data preprocessing
 # =============================================================================
-cat("\nData preprocessing...\n")
 
 # Convert categorical variables to factors
 data$device_id <- as.factor(data$device_id)
 data$site <- as.factor(data$site)
 data$habitat <- as.factor(data$habitat)
 data$dataset <- as.factor(data$dataset)
-
-# Check for missing values
-cat("Missing values per column:\n")
-print(colSums(is.na(data)))
-
-# show the list of columns 
-cat("Column names in the dataset:\n")
-print(colnames(data))
 
 # Remove rows with missing values in key variables
 data_clean <- data[complete.cases(data[c("species_richness", "nROI", "device_id", "habitat", "dataset")]), ]
@@ -74,7 +66,6 @@ cat("Data dimensions after cleaning:", nrow(data_clean), "rows,", ncol(data_clea
 
 # Aggregate data by site (as in Python code)
 # =============================================================================
-cat("\nAggregating data by site...\n")
 
 # Average species richness and nROI per site keeping site, habitat, device_id, and dataset
 data_agg <- data_clean %>%
@@ -89,21 +80,15 @@ data_agg <- data_clean %>%
 cat("Aggregated data dimensions:", nrow(data_agg), "rows,", ncol(data_agg), "columns\n")
 
 # Summary statistics
-cat("\nSummary statistics:\n")
 print(summary(data_agg))
 
 # Display data distribution by groups
-cat("\nData distribution by groups:\n")
-cat("Number of observations per dataset:\n")
 print(table(data_agg$dataset))
-cat("\nNumber of observations per habitat:\n")
 print(table(data_agg$habitat))
-cat("\nNumber of observations per device:\n")
 print(table(data_agg$device_id))
 
 # Exploratory data analysis
 # =============================================================================
-cat("\nExploratory Data Analysis...\n")
 
 # Distribution of species richness
 p1 <- ggplot(data_agg, aes(x = species_richness)) +
@@ -119,19 +104,14 @@ p1_nroi <- ggplot(data_agg, aes(x = nROI)) +
     theme_minimal()
 print(p1_nroi)
 
-# For regression: You can fit a standard Gaussian GLM as below,
-# but it will not capture multimodality in the response distribution.
-p2 <- ggplot(data_agg, aes(x = nROI, y = species_richness)) +
-    geom_point(aes(color = habitat), alpha = 0.7) +
-    geom_smooth(method = "glm", method.args = list(family = gaussian(link = "identity")), se = TRUE) +
-    labs(title = "Species Richness vs nROI (Gaussian GLM)", x = "nROI", y = "Species Richness") +
-    theme_minimal() +
-    facet_wrap(~dataset, scales = "free") +
-    coord_cartesian(xlim = c(0, 260), ylim = c(0, 8)) 
-print(p2)
+# create a new plot with p1 and p1_nROI.
+p1_combined <- grid.arrange(p1_nroi, p1, ncol = 2)
+print(p1_combined)
 
 # save the plot
-# ggsave("./results/species_richness_vs_nROI_by_dataset.png", plot = p2, dpi = 300)
+if (SAVE_FIGURES == TRUE) {
+    ggsave("./results/figure_S4.png", plot = p1_combined, dpi = 300)
+}
 
 # Relationship between nROI and species richness but by habitat
 # Faceted by habitat
@@ -146,7 +126,27 @@ p2_habitat <- ggplot(data_agg, aes(x = nROI, y = species_richness)) +
 print(p2_habitat)
 
 # save the plot
-# ggsave("./results/species_richness_vs_nROI_by_habitat.png", plot = p2_habitat, dpi = 300)
+if (SAVE_FIGURES == TRUE) {
+    ggsave("./results/figure_S5.png", plot = p2_habitat, dpi = 300)
+}
+
+# For regression: You can fit a standard Gaussian GLM as below,
+# but it will not capture multimodality in the response distribution.
+# remove the legend for clarity
+p2 <- ggplot(data_agg, aes(x = nROI, y = species_richness)) +
+    geom_point(aes(color = habitat), alpha = 0.7) +
+    geom_smooth(method = "glm", method.args = list(family = gaussian(link = "identity")), se = TRUE) +
+    labs(title = "Species Richness vs nROI (Gaussian GLM)", x = "nROI", y = "Species Richness") +
+    theme_minimal() +
+    facet_wrap(~dataset, scales = "free") +
+    coord_cartesian(xlim = c(0, 260), ylim = c(0, 8)) +
+    theme(legend.position = "none")
+print(p2)
+
+# save the plot
+if (SAVE_FIGURES == TRUE) {
+    ggsave("./results/figure_S6.png", plot = p2, dpi = 300)
+}
 
 # Box plots by groups
 p3 <- ggplot(data_agg, aes(x = habitat, y = species_richness)) +
@@ -158,12 +158,8 @@ p3 <- ggplot(data_agg, aes(x = habitat, y = species_richness)) +
 
 print(p3)
 
-# save the plot
-# ggsave("./results/species_richness_barplots_by_habitat.png", plot = p3, dpi = 300)
-
 # Model fitting
 # =============================================================================
-cat("STATISTICAL MODELING\n")
 
 # Keep habitats with at least 3 observations (n_observations)
 data_agg <- data_agg %>%
@@ -175,14 +171,12 @@ data_agg <- data_agg %>%
 data_agg <- droplevels(data_agg)
 
 # Check distribution of species richness for model selection
-cat("Species richness distribution for model selection:\n")
 print(summary(data_agg$species_richness))
 cat("Variance:", var(data_agg$species_richness), "\n")
 cat("Mean:", mean(data_agg$species_richness), "\n")
 cat("Variance/Mean ratio:", var(data_agg$species_richness) / mean(data_agg$species_richness), "\n")
 
 # Check if variables are appropriate for different model types
-cat("\nData type check AFTER aggregation:\n")
 cat("Species richness - integers?", all(data_agg$species_richness == round(data_agg$species_richness), na.rm = TRUE), "\n")
 cat("Species richness range:", range(data_agg$species_richness), "\n")
 cat("Any zero values?", any(data_agg$species_richness == 0), "\n")
@@ -191,14 +185,12 @@ cat("nROI range:", range(data_agg$nROI), "\n")
 cat("Any zero values?", any(data_agg$nROI == 0), "\n")
 cat("Variance/Mean ratio:", var(data_agg$nROI) / mean(data_agg$nROI), "\n")
 
-# Check is the variance is roughly constant across nROI values (homoscedasticity)
-cat("\nChecking homoscedasticity of species richness across nROI values:\n")
+# Check if the variance is roughly constant across nROI values (homoscedasticity)
 model_lm_check <- lm(species_richness ~ nROI, data = data_agg)
 par(mfrow = c(1, 2))
 plot(model_lm_check, which = 1) # Residuals vs Fitted
 plot(model_lm_check, which = 3) # Scale-Location plot
 par(mfrow = c(1, 1))
-# Look for patterns in residuals: a horizontal band of points indicates homoscedasticity
 
 #-----------------------------------------------------------------------------
 # Model base: Baseline model with only the smooth fixed effect
@@ -210,17 +202,25 @@ lm_base <- lm(
 )
 # Check model summary and fixed effects p-values
 summary(lm_base)
-plot(lm_base, pages = 1)
 
 # Residual diagnostics using DHARMa
 sim_res <- simulateResiduals(lm_base)
-par(mfrow = c(2, 2)) # Set plotting layout
-testDispersion(sim_res) # Test for overdispersion
-testZeroInflation(sim_res) # Test for zero-inflation
-testUniformity(sim_res) # Test for uniformity
-testOutliers(sim_res) # Test for outliers
-# Reset plotting layout
-par(mfrow = c(1, 1))
+plot(sim_res) # Overall residual plot
+
+# # OPTIONAL : More diagnostic graphs
+# par(mfrow = c(3, 2)) # Set plotting layout
+# # plot residuals vs fitted values. add title and red horizontal line at 0. change x and y labels
+# plot(residuals(lm_base) ~ fitted(lm_base), main = "Residuals vs Fitted Values", xlab = "Fitted Values", ylab = "Residuals")
+# abline(h = 0, lty = 2, col = "red")
+# # plot residuals vs nROI. add title and red horizontal line at 0. change x and y labels
+# plot(residuals(lm_base) ~ data_agg$nROI, main = "Residuals vs nROI", xlab = "nROI", ylab = "Residuals")
+# abline(h = 0, lty = 2, col = "red")
+# testDispersion(sim_res) # Test for overdispersion
+# testZeroInflation(sim_res) # Test for zero-inflation
+# testUniformity(sim_res) # Test for uniformity
+# testOutliers(sim_res) # Test for outliers
+# # Reset plotting layout
+# par(mfrow = c(1, 1))
 
 #-----------------------------------------------------------------------------
 # model 1 Including fixed effects
@@ -232,7 +232,6 @@ lm_model1 <- lm(
 )
 # Check model summary and fixed effects p-values
 summary(lm_model1)
-plot(lm_model1, pages = 1)
 
 # cat("The reference level for habitat is:", levels(data_agg$habitat)[1], "\n")
 # cat("The reference level for device_id is:", levels(data_agg$device_id)[1], "\n")
@@ -240,13 +239,22 @@ plot(lm_model1, pages = 1)
 
 # Residual diagnostics using DHARMa
 sim_res <- simulateResiduals(lm_model1)
-par(mfrow = c(2, 2)) # Set plotting layout
-testDispersion(sim_res) # Test for overdispersion
-testZeroInflation(sim_res) # Test for zero-inflation
-testUniformity(sim_res) # Test for uniformity
-testOutliers(sim_res) # Test for outliers
-# Reset plotting layout
-par(mfrow = c(1, 1))
+plot(sim_res) # Overall residual plot
+
+# # OPTIONAL : More diagnostic graphs
+# par(mfrow = c(3, 2)) # Set plotting layout
+# # plot residuals vs fitted values. add title and red horizontal line at 0. change x and y labels
+# plot(residuals(lm_model1) ~ fitted(lm_model1), main = "Residuals vs Fitted Values", xlab = "Fitted Values", ylab = "Residuals")
+# abline(h = 0, lty = 2, col = "red")
+# # plot residuals vs nROI. add title and red horizontal line at 0. change x and y labels
+# plot(residuals(lm_model1) ~ data_agg$nROI, main = "Residuals vs nROI", xlab = "nROI", ylab = "Residuals")
+# abline(h = 0, lty = 2, col = "red")
+# testDispersion(sim_res) # Test for overdispersion
+# testZeroInflation(sim_res) # Test for zero-inflation
+# testUniformity(sim_res) # Test for uniformity
+# testOutliers(sim_res) # Test for outliers
+# # Reset plotting layout
+# par(mfrow = c(1, 1))
 
 #-----------------------------------------------------------------------------
 # model 2:  Including random effects
@@ -258,7 +266,7 @@ par(mfrow = c(1, 1))
 # Fit the full model using the 'glmmTMB' function from glmmTMB
 lmm_model2 <- glmmTMB(
     # species_richness ~ nROI + (1 | habitat) + (1 | site), # with cross random effects on habitat and site (site doesn't catch the spatial autocorrelation)
-    #species_richness ~ nROI + (1 | habitat) + (1 | dataset), # with cross random effects on habitat and dataset (dataset catch the spatial autocorrelation) but structure in the residuals
+    # species_richness ~ nROI + (1 | habitat) + (1 | dataset), # with cross random effects on habitat and dataset (dataset catch the spatial autocorrelation) but structure in the residuals
     # species_richness ~ nROI + (nROI | habitat), # with random slope and intercept (not enough habitats to converge)
     species_richness ~ nROI + (1 | habitat), # with random intercept on habitat only
     data = data_agg,
@@ -270,22 +278,34 @@ lmm_model2 <- glmmTMB(
 summary(lmm_model2)
 
 # Residual diagnostics using DHARMa
+if (SAVE_FIGURES == TRUE) {
+    png(filename = "./results/figure_S7.png", width = 20, height = 15, units = "cm", res = 300)
+}
+
 sim_res <- simulateResiduals(lmm_model2)
 plot(sim_res) # Overall residual plot
 
-par(mfrow = c(3, 2)) # Set plotting layout
-# plot residuals vs fitted values. add title and red horizontal line at 0. change x and y labels
-plot(residuals(lmm_model2) ~ fitted(lmm_model2), main = "Residuals vs Fitted Values", xlab = "Fitted Values", ylab = "Residuals")
-abline(h = 0, lty = 2, col = "red")
-# plot residuals vs nROI. add title and red horizontal line at 0. change x and y labels
-plot(residuals(lmm_model2) ~ data_agg$nROI, main = "Residuals vs nROI", xlab = "nROI", ylab = "Residuals")
-abline(h = 0, lty = 2, col = "red")
-testDispersion(sim_res) # Test for overdispersion
-testZeroInflation(sim_res) # Test for zero-inflation
-testUniformity(sim_res) # Test for uniformity
-testOutliers(sim_res) # Test for outliers
-# Reset plotting layout
-par(mfrow = c(1, 1))
+dev.off()
+
+
+# # # OPTIONAL : More diagnostic graphs
+# par(mfrow = c(3, 2)) # Set plotting layout
+# # plot residuals vs fitted values. add title and red horizontal line at 0. change x and y labels
+# plot(residuals(lmm_model2) ~ fitted(lmm_model2), main = "Residuals vs Fitted Values", xlab = "Fitted Values", ylab = "Residuals")
+# abline(h = 0, lty = 2, col = "red")
+# # plot residuals vs nROI. add title and red horizontal line at 0. change x and y labels
+# plot(residuals(lmm_model2) ~ data_agg$nROI, main = "Residuals vs nROI", xlab = "nROI", ylab = "Residuals")
+# abline(h = 0, lty = 2, col = "red")
+# testDispersion(sim_res) # Test for overdispersion
+# testZeroInflation(sim_res) # Test for zero-inflation
+# testUniformity(sim_res) # Test for uniformity
+# testOutliers(sim_res) # Test for outliers
+# # Reset plotting layout
+# par(mfrow = c(1, 1))
+
+#-----------------------------------------------------------------------------
+# Build the graph with predictions, PI and CI
+#-----------------------------------------------------------------------------
 
 # Prediction plot with confidence and prediction intervals
 pred_data <- data.frame(
@@ -315,28 +335,39 @@ pred_data$pi_lower <- pred_data$predicted - t_val * pred_data$pi_se
 pred_data$pi_upper <- pred_data$predicted + t_val * pred_data$pi_se
 
 p_pred <- ggplot(data_agg, aes(x = nROI, y = species_richness)) +
-    geom_ribbon(data = pred_data, aes(x = nROI, ymin = pi_lower, 
-                                                                        ymax = pi_upper), 
-                            fill = "grey80", alpha = 0.5, inherit.aes = FALSE) +
-    geom_ribbon(data = pred_data, aes(x = nROI, ymin = ci_lower, 
-                                                                        ymax = ci_upper), 
-                            fill = "blue", alpha = 0.3, inherit.aes = FALSE) +
-    geom_point(aes(color = habitat), alpha = 0.7) +
-    geom_line(data = pred_data, aes(x = nROI, y = predicted), 
-                        color = "blue", size = 1) +
-    geom_line(data = pred_data, aes(x = nROI, y = pi_lower), 
-                        color = "grey50", linetype = "dashed", size = 0.8) +
-    geom_line(data = pred_data, aes(x = nROI, y = pi_upper), 
-                        color = "grey50", linetype = "dashed", size = 0.8) +
-    labs(title = "Species Richness vs nROI with GLMM Intervals", 
-            x = "nROI", y = "Species Richness",
-            subtitle = "Blue: 95% Confidence Interval, Grey: 95% Prediction Interval") +
+    geom_ribbon(
+        data = pred_data, aes(x = nROI, ymin = pi_lower,ymax = pi_upper),
+        fill = "grey80", alpha = 0.5, inherit.aes = FALSE
+    ) +
+    geom_ribbon(
+        data = pred_data, aes(x = nROI, ymin = ci_lower,ymax = ci_upper),
+        fill = "blue", alpha = 0.3, inherit.aes = FALSE
+    ) +
+    geom_point(aes(color = habitat), alpha = 0.75, size = 3) +
+    geom_line(
+        data = pred_data, aes(x = nROI, y = predicted),
+        color = "blue", size = 1
+    ) +
+    geom_line(
+        data = pred_data, aes(x = nROI, y = pi_lower),
+        color = "grey50", linetype = "dashed", size = 0.8
+    ) +
+    geom_line(
+        data = pred_data, aes(x = nROI, y = pi_upper),
+        color = "grey50", linetype = "dashed", size = 0.8
+    ) +
     theme_minimal() +
     coord_cartesian(xlim = c(0, 260), ylim = c(0, 8)) +
-    theme(legend.position = c(0.82, 0.15))
+    theme(legend.position = c(0.82, 0.17))
 print(p_pred)
 par(mfrow = c(1, 1))
 
+# save the plot
+if (SAVE_FIGURES == TRUE) {
+    ggsave("./results/figure_S8.png", plot = p_pred, dpi = 300)
+}
+
+#-------------------------------------------------------------
 # metrics
 #-------------------------------------------------------------
 
@@ -358,20 +389,23 @@ r2 <- 1 - sum(residuals_values^2) / sum((data_agg$species_richness - mean(data_a
 cat("Residual R² of the model:", r2, "\n")
 
 #  equation of the model when using only nROI as fixed effect
+fixed_effects <- summary(lmm_model2)$coefficients$cond
 slope <- fixed_effects["nROI", "Estimate"]
 intercept <- fixed_effects["(Intercept)", "Estimate"]
 cat("Model equation: species_richness =", slope, "* nROI +", intercept, "\n")
 
+# test model on a new dataset: WABAD
 # =============================================================================
-# test model on a new dataset WABAD
-# =============================================================================
-cat("Testing model on a new dataset WABAD...\n")
+
+# min sampling effort
+SAMPLING_EFFORT <- 3
+
 # Load new dataset
 new_data_path <- "./results/test_dataset_for_statistical_modeling_in_R.csv"
 new_data <- read.csv(new_data_path)
 
-# remove sites with count less than 3 to 20 sampling effort
-new_data <- new_data[new_data["count"] >= 3, ]
+# remove sites with count less than SAMPLING_EFFORT
+new_data <- new_data[new_data["count"] >= SAMPLING_EFFORT, ]
 
 # set habitat and dataset as factors
 new_data$habitat <- as.factor(new_data$habitat)
@@ -386,6 +420,7 @@ new_data$dataset <- as.factor(new_data$dataset)
 new_data$habitat <- factor(new_data$habitat, levels = levels(data_agg$habitat))
 new_data$dataset <- factor(new_data$dataset, levels = levels(data_agg$dataset))
 
+# do prediction with the best mixed-effects model
 predictions <- predict(lmm_model2,
     newdata = new_data,
     re.form = NA
@@ -433,8 +468,6 @@ cat("CCC:", ccc$rho.c$est, "\n")
 
 # =============================================================================
 
-cat("SPATIAL AUTOCORRELATION ANALYSIS\n")
-
 # Load required spatial packages
 if (!require("spdep")) install.packages("spdep")
 if (!require("sp")) install.packages("sp")
@@ -443,29 +476,31 @@ library(spdep) # Spatial dependence analysis
 library(sp) # Spatial data classes
 library(sf) # Simple features for spatial data
 
-cat("Required GPS coordinate format:\n")
-cat("- Latitude: Decimal degrees (e.g., 45.7640)\n")
-cat("- Longitude: Decimal degrees (e.g., 4.8357)\n")
-cat("- Coordinate system: WGS84 (EPSG:4326) recommended\n")
-cat("- Column names: 'latitude' and 'longitude' or 'lat' and 'lon'\n\n")
+###### SELECT THE MODEL RESIDUALS TO TEST FOR SPATIAL AUTOCORRELATION #######
 
-# Extract the residuals from the csv file residuals_simple_regression.csv
-# Load the data
-residual_path <- "./results/nROI_residuals_simple_regression.csv"
-if (!file.exists(residual_path)) {
-    stop("Data file not found. Please check the path: ", residual_path)
-}
-model_residuals <- read.csv(residual_path, stringsAsFactors = FALSE)
+# OPTION 1 : Here we use the residuals from the k-fold robust linear regression model
+# (see 03_indices_resgression_linear_Groupkfold_by_habitat.ipynb)
+#------------------------------------------------------------------------
+# # Extract the residuals from the csv file residuals_simple_regression.csv
+# # Load the data
+# residual_path <- "./results/nROI_residuals_simple_regression.csv"
+# if (!file.exists(residual_path)) {
+#     stop("Data file not found. Please check the path: ", residual_path)
+# }
+# model_residuals <- read.csv(residual_path, stringsAsFactors = FALSE)
 
-# remove rows with habitat that are not in data_agg
-model_residuals <- model_residuals[model_residuals$site %in% levels(data_agg$site), ]
+# # remove rows with habitat that are not in data_agg
+# model_residuals <- model_residuals[model_residuals$site %in% levels(data_agg$site), ]
 
+# # add a column residual in the dataframe data_agg
+# data_agg$residual <- model_residuals$residual
 
-# add a column residual in the dataframe data_agg
-data_agg$residual <- model_residuals$residual
-
+# OPTION 2: Or you can directly extract the residuals from the GLMM model (lm_model1 lmm_model2)
+#------------------------------------------------------------------------
 # Extract the residuals from the model
-# data_agg$residual <- residuals(lmm_model2) # or lm_base lm_model1 lmm_model2
+data_agg$residual <- residuals(lmm_model2) # or lm_base lm_model1 lmm_model2
+
+# ##############################################################################
 
 # Add the residuals and coordinates to a new data frame
 residuals_data <- data.frame(
@@ -506,20 +541,3 @@ if (moran_test_residuals$p.value < 0.05) {
     cat("No significant spatial autocorrelation in residuals.\n")
     cat("The model adequately accounts for spatial structure.\n")
 }
-
-# identify spatially autocorrelated residuals using Moran's I scatter plot
-moran_residuals <- moran.plot(spatial_residuals$residual, listw = spatial_weights,
-    main = "Moran's I Scatter Plot of Model Residuals",
-    xlab = "Residuals",
-    ylab = "Spatial Lag of Residuals"
-)   
-
-# list of spatially autocorrelated sites
-threshold <- 0.5 # define a threshold for high spatial lag
-high_lag_indices <- which(abs(moran_residuals$wx) > threshold)
-high_lag_sites <- residuals_data[high_lag_indices, ]
-cat("Sites with high spatially autocorrelated residuals (|spatial lag| >", threshold, "):\n")
-print(high_lag_sites)   
-
-
-moran.mc(spatial_residuals$residual, listw = spatial_weights, nsim=99)

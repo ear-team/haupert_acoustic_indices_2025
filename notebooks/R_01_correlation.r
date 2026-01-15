@@ -16,18 +16,18 @@ library(corrplot)
 CORRELATION_TYPE <- "spearman"
 
 # IMPORT CSV (you may need to adapt the path depending on your working directory)
-data <- fread("./results/data_species_onlybirds.csv")
+data <- fread("./results/train_dataset_for_statistical_modeling_in_R.csv")
 
 # Extract the acoustic index only
 data_index <- data[, c(2:61)]
 
 # select the columns by their name
 data_index_selection <- data_index[, c(
-        "NP", "EAS", "EPS", "ACI", "NDSI", "rBA",
-        "BioEnergy", "BIO", "LFC", "MFC", "ACTspFract",
-        "ACTspCount", "ACTspMean", "EVNspFract", "EVNspMean",
-        "EVNspCount", "TFSD", "AGI", "nROI", "aROI"
-)]
+        'EAS', 'NP', 'EPS', 'ACI', 'NDSI', 'rBA', 
+        'BioEnergy', 'BIO', 'LFC', 'MFC', 'ACTspFract', 
+        'ACTspCount', 'ACTspMean', 'EVNspFract', 'EVNspMean', 
+        'EVNspCount', 'TFSD', 'AGI', 'nROI', 'aROI')]
+
 
 # Resize the figure
 options(repr.plot.width = 20, repr.plot.height = 15, repr.plot.res = 300)
@@ -48,10 +48,13 @@ cor_matrix_pos[cor_matrix_pos < 0] <- 0 # set negatives to 0
 
 # Force scale range by temporarily setting one diagonal element to 0
 # (will be overwritten by clustering but ensures color scale starts at 0)
-cor_matrix_pos[1, 1] <- 0
+# cor_matrix_pos[1, 1] <- 0
+
+# Find the lowest value and set it to 0
+cor_matrix_pos[which(cor_matrix_pos == min(cor_matrix_pos))] <- 0
 
 # Save the figure in png format
-png(filename = "./results/figure_6_onlybirds.png", width = 20, height = 15, units = "cm", res = 300)
+png(filename = "./results/figure_5_onlybirds.png", width = 20, height = 15, units = "cm", res = 300)
 
 # plot the correlation matrix with the p-value
 corrplot_obj <- corrplot(
@@ -68,7 +71,7 @@ corrplot_obj <- corrplot(
         tl.col = "#000000",
         tl.srt = 45,
         tl.cex = 0.66,
-        cl.ratio = 0.1,
+        cl.ratio = 0.2,
         cl.cex = 0.66,
         is.corr = FALSE # allow custom range
 )
@@ -80,10 +83,7 @@ dev.off()
 library(car)
 
 # Create a dataset that includes species_richness for VIF analysis
-data_for_vif <- data[, c("species_richness", c(
-        "BioEnergy", "NDSI", "nROI", "MFC",
-        "NP", "EAS", "LFC", "ACI", "TFSD"
-)), with = FALSE]
+data_for_vif <- data[, c("species_richness", c("BioEnergy","NDSI", "nROI", "NP", "ACI", "TFSD", "LFC", "AGI")), with = FALSE]
 # compute a simple linear model
 vif_model <- lm(species_richness ~ ., data = data_for_vif)
 # calculate VIF values
