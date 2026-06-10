@@ -9,7 +9,8 @@ datasets:
         'POZO', 'PUUL', 'QR', 'RBA', 'RFP', 'RGU', 'RME', 'ROTOK', 'SAL',
         'SBN', 'SCHF', 'SCHG', 'SD', 'SITH', 'SLOB', 'SPMCO', 'TAM', 'UNI',
         'VER', 'VIL']
-    path: '../data/Wabad/audio'
+    # path: '../data/Wabad/audio'
+    path: '/media/haupert/data/mes_projets_data/nROI/dataset/_02_dataset_for_publication/Wabad/audio'
     datetime_format: '%Y%m%d_%H%M%S'
     flim_max: null
     flim_min: null
