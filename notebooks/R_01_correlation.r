@@ -54,7 +54,7 @@ cor_matrix_pos[cor_matrix_pos < 0] <- 0 # set negatives to 0
 cor_matrix_pos[which(cor_matrix_pos == min(cor_matrix_pos))] <- 0
 
 # Save the figure in png format
-png(filename = "./results/figure_5_onlybirds.png", width = 20, height = 15, units = "cm", res = 300)
+png(filename = "./results/figure_S11.png", width = 20, height = 15, units = "cm", res = 300)
 
 # plot the correlation matrix with the p-value
 corrplot_obj <- corrplot(
