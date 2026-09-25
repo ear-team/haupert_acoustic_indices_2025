@@ -9,6 +9,8 @@
 # ==================================================================================
 
 # LOAD LIBRARIES
+if (!require("data.table")) install.packages("data.table")
+if (!require("corrplot")) install.packages("corrplot")
 library(data.table)
 library(corrplot)
 
@@ -18,16 +20,17 @@ CORRELATION_TYPE <- "spearman"
 # IMPORT CSV (you may need to adapt the path depending on your working directory)
 data <- fread("./results/train_dataset_for_statistical_modeling_in_R.csv")
 
+# List of index with |R|>0.3
+LIST_INDICES = c('nROI', 'aROI', 'NP', 'EAS', 'EPS', 'ACI', 'NDSI', 'rBA', 
+                'BioEnergy', 'BIO', 'LFC', 'MFC', 'ACTspFract', 
+                'ACTspCount', 'ACTspMean', 'EVNspFract', 'EVNspMean', 
+                'EVNspCount', 'TFSD', 'AGI' )
+
 # Extract the acoustic index only
 data_index <- data[, c(2:61)]
 
 # select the columns by their name
-data_index_selection <- data_index[, c(
-        'EAS', 'NP', 'EPS', 'ACI', 'NDSI', 'rBA', 
-        'BioEnergy', 'BIO', 'LFC', 'MFC', 'ACTspFract', 
-        'ACTspCount', 'ACTspMean', 'EVNspFract', 'EVNspMean', 
-        'EVNspCount', 'TFSD', 'AGI', 'nROI', 'aROI')]
-
+data_index_selection <- data_index[, LIST_INDICES]
 
 # Resize the figure
 options(repr.plot.width = 20, repr.plot.height = 15, repr.plot.res = 300)
@@ -80,12 +83,21 @@ dev.off()
 
 # VIF (Variation Inflation Factor) calculation to check for multicollinearity
 # ===============================================================================
+if (!require("car")) install.packages("car")
 library(car)
 
 # Create a dataset that includes species_richness for VIF analysis
-data_for_vif <- data[, c("species_richness", c("BioEnergy","NDSI", "nROI", "NP", "ACI", "TFSD", "LFC", "AGI")), with = FALSE]
+data_for_vif <- data[, c("species_richness", LIST_INDICES), with = FALSE]
 # compute a simple linear model
 vif_model <- lm(species_richness ~ ., data = data_for_vif)
 # calculate VIF values
 vif_values <- vif(vif_model)
 print(vif_values)
+
+# remove in the list the indices that have a VIF > 10 (common threshold for multicollinearity)
+LIST_INDICES_REDUCED <- LIST_INDICES[vif_values <= 10]
+# compute the VIF values again with the reduced list of indices
+data_for_vif_reduced <- data[, c("species_richness", LIST_INDICES_REDUCED), with = FALSE]
+vif_model_reduced <- lm(species_richness ~ ., data = data_for_vif_reduced)
+vif_values_reduced <- vif(vif_model_reduced)
+print(vif_values_reduced)

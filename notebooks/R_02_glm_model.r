@@ -1,6 +1,10 @@
 # =============================================================================
 # Statistical Modeling with Generalized Linear Mixed Models (GLMM) in R
 # Updated: January 2026
+#
+# !CAUTION! : 
+# Run the notebook 05_prepare_data_for_statistical_modeling_in_R.ipynb 
+# before running this script to prepare the data.
 # =============================================================================
 
 # Clear workspace
@@ -11,7 +15,7 @@ setwd("./")
 
 # options
 # =============================================================================
-SAVE_FIGURES <- FALSE # Set to TRUE to save figures, FALSE to only display them
+SAVE_FIGURES <- TRUE # Set to TRUE to save figures, FALSE to only display them
 
 # Load required libraries
 # =============================================================================
@@ -161,10 +165,10 @@ print(p3)
 # Model fitting
 # =============================================================================
 
-# Keep habitats with at least 3 observations (n_observations)
+# Keep habitats with at least 5 observations (n_observations)
 data_agg <- data_agg %>%
     group_by(habitat) %>%
-    filter(n() >= 3) %>%
+    filter(n() >= 5) %>%
     ungroup()
 
 # remove empty habitats
@@ -398,7 +402,7 @@ cat("Model equation: species_richness =", slope, "* nROI +", intercept, "\n")
 # =============================================================================
 
 # min sampling effort
-SAMPLING_EFFORT <- 3
+SAMPLING_EFFORT <- 20
 
 # Load new dataset
 new_data_path <- "./results/test_dataset_for_statistical_modeling_in_R.csv"
@@ -456,11 +460,11 @@ ccc <- CCC(new_data$predicted_species_richness, new_data$species_richness)
 
 # print the results
 cat("Model performance on WABAD dataset:\n")
+cat("CCC:", ccc$rho.c$est, "\n")
+cat("R²:", r2, "\n")
 cat("RMSE:", rmse, "\n")
 cat("MAE:", mae, "\n")
 cat("Bias:", bias, "\n")
-cat("R²:", r2, "\n")
-cat("CCC:", ccc$rho.c$est, "\n")
 
 # =============================================================================
 

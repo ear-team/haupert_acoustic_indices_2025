@@ -1,7 +1,8 @@
 datasets:
   - name: 'risoux'
     sites : ['risoux3']
-    path: '../data/db@risoux/2019/MAGNETO_03_S4A03536'
+    # path: '../data//dB@risoux/audio'
+    path: '/media/haupert/data/mes_projets_data/nROI/dataset/_03_data_for_publication_v2/dB@risoux/audio'
     datetime_format: '%Y%m%d_%H%M%S'
     flim_max: null
     flim_min: null
